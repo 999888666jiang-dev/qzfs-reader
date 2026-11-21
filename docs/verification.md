@@ -1,6 +1,6 @@
 # 验证记录
 
-> 状态：**M0（T-01）、M1（T-02）、M2/M3（页面/目录/阅读核心）与基础 PWA 已执行**；M4 动效与 M5 正式上线验收待执行（2026-11-21）。
+> 状态：**M0–M3 与基础 PWA 已执行；GitHub Pages 已上线；M4 动效与自动化测试待执行**（2026-11-21）。
 > 本文是验收清单与记录模板；实现过程中每完成一项，把「待执行」改为「通过 / 未通过 / 不适用」，并附证据（命令输出、截图、URL、浏览器版本）。
 > 禁止预填「通过」；禁止用「应该可以」代替实测。
 
@@ -253,3 +253,26 @@ Headless Chrome（CDP 390×844）检查：
 - 没有 Vitest/Playwright 自动化测试；以上为 CDP 手工验收，需在 M5 前补自动化。
 - 设置抽屉的关闭动作只做了点击验证，未单独记录关闭后的焦点归还。
 - 阅读页未实现仿真翻页；v1 为滚动阅读。
+
+## 14. GitHub Pages 上线（2026-11-21）
+
+| 项 | 结果 |
+| --- | --- |
+| 仓库 | <https://github.com/999888666jiang-dev/qzfs-reader>（公开） |
+| Pages | <https://999888666jiang-dev.github.io/qzfs-reader/> |
+| 默认分支 | `main` |
+| Pages Source | GitHub Actions（`build_type=workflow`） |
+| Actions | 最近两次 deploy 均 success（`44903981560`、`44904126982`） |
+| 线上首页 | HTTP 200，2,245 B |
+| 线上 `data/meta.json` | HTTP 200，1,758 B |
+| 线上 `data/catalog.json` | HTTP 200，228,230 B |
+| 线上 `data/chapters/c0001.json` | HTTP 200，8,969 B |
+| manifest / sw / 主图 | 均 HTTP 200 |
+| 线上阅读页 | headless Chrome 打开 `#/read/c0001`，渲染出「第 1 章 世界大变」与正文 |
+
+说明：
+
+- 当前线上是可读版本；M4 四件套动效、PWA 更新提示、自动化测试仍未完成。
+- 仓库公开意味着全文可被克隆；页面已 `noindex`，版权说明在 `/about`。
+- 国内访问 GitHub Pages 的稳定性需真机复测；备选托管见 `docs/deployment.md`。
+- 线上数据与本地 `main` 同树；后续 push 会自动重新部署。
