@@ -414,7 +414,7 @@
           "禁地东守阁",
           "禁地东守阁"
         ],
-        "pickedLine": 40704,
+        "pickedLine": 117381,
         "reason": "标题冲突"
       },
       {
@@ -567,8 +567,8 @@
     ]
   },
   "cleaning": {
-    "adLines": 198,
-    "adSuffixes": 0,
+    "adLines": 836,
+    "adSuffixes": 763,
     "bomRemoved": 194,
     "falseHeadingLines": 0,
     "emptyTitles": 8,
@@ -576,7 +576,7 @@
   },
   "anomalies": {
     "shortChapters": [],
-    "redactions": 1228,
+    "redactions": 1210,
     "titleConflicts": [
       39,
       258,
@@ -618,5 +618,5 @@
     "available": 3101,
     "missing": 132
   },
-  "chars": 7101261
+  "chars": 7048538
 }

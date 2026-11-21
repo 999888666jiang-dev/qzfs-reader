@@ -66,7 +66,7 @@ npm test                                           # M3 起接入 Vitest
 npm run test:e2e                                   # M5 起接入 Playwright
 ```
 
-> 当前 M1 结果：3,233 章 / 3,101 可读 / 132 缺失 / 7,101,261 字；详见 [docs/verification.md](docs/verification.md)。
+> 当前 M1 结果：3,233 章 / 3,101 可读 / 132 缺失 / 7,048,538 字（已清洗 836 行广告与 763 处行内广告）；详见 [docs/verification.md](docs/verification.md)。
 > 验收结果统一写进 [docs/verification.md](docs/verification.md)。
 
 ## 部署

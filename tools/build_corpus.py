@@ -44,6 +44,81 @@ AD_LINE_RES = [
     re.compile(r"会员手打"),
     re.compile(r"^（第\d+/\d+页）$"),
 ]
+# Inline site junk: truncate from the marker to the end of the paragraph.
+TRUNCATE_RES = [
+    re.compile(r"请用小写字母输入网址.*$"),
+    re.compile(r"记住手机版网址.*$"),
+    re.compile(r"请用搜索引擎.*$"),
+    re.compile(r"完美破防盗章节.*$"),
+    re.compile(r"书客居.*$"),
+    re.compile(r"蚂蚁阅读网.*$"),
+    re.compile(r"readChapter\d+.*$", re.IGNORECASE),
+    re.compile(r"加入书签.*$"),
+    re.compile(r"章节错误.*$"),
+    re.compile(r"手机用户请浏览阅读.*$"),
+    re.compile(r"请记住[^。]{0,40}阅读网.*$"),
+    re.compile(r"https?:\s*\d+.*$"),
+]
+# Promotional author notes in parentheses, e.g. 求月票 / 订阅 / 打赏 / 公众号.
+PROMO_PAREN_RE = re.compile(
+    r"[（(][^（）()]{0,200}(?:求月票|求推荐票|推荐票|月票|订阅|收藏本书|收藏一下|打赏|加更|断更|"
+    r"上架|新书|首发|微信公众号|公众号|QQ群|书友群|手机版网址|阅读器|正版|盗版|"
+    r"章节错误|防盗章节)[^（）()]{0,200}[）)]"
+)
+PROMO_BRACKET_RE = re.compile(
+    r"【[^【】]{0,300}(?:求月票|求推荐票|推荐票|月票|订阅|收藏|打赏|加更|断更|上架|新书|"
+    r"公众号|微信|QQ|网址|阅读器|盗版|正版)[^【】]{0,300}】"
+)
+# Whole-line promotional notes / site ads that are not parenthesized.
+PROMO_LINE_RES = [
+    re.compile(
+        r"本站网址|手机版更新最快|手机版网址|顶点[^\s，。；]{0,8}更新最快|最快更新无错|"
+        r"请收藏本站|请访问.*本站|中文网】|readx|readChapter|追书神器|手机免费阅读器|"
+        r"免费阅读器|无弹窗|txt下载|蚂蚁阅读网|书客居|笔趣阁|云来阁|移动网|内容更新后|"
+        r"重新刷新页面|获取最新更新"
+    ),
+    re.compile(r"公众号|QQ阅读|微信阅读|起点中文网|创世中文网|作家荣耀堂|粉丝节"),
+    re.compile(r"新书.*(?:发布|起点|QQ阅读|微信阅读|创世|网站)"),
+    re.compile(r"百度一下.*(?:书法网|公益|签到)"),
+    re.compile(r"ps[•·].*(?:更新|票|起点)"),
+    re.compile(
+        r"求月票|求推荐票|推荐票|月票|订阅正版|订阅本书|打赏|加更|断更|上架|"
+        r"每天.*章更新|明天.*更新|今天.*更新|更新完这章"
+    ),
+    re.compile(r"收藏.*(?:本书|书架|最新章节|更新提醒|阅读)"),
+    re.compile(r"微信.*(?:公众号|红包|书币|加我|luanshu)"),
+    re.compile(r"^(?:https?:?|\d{4,6}\s*\.)$"),
+]
+SITE_INLINE_REMOVE_RES = [
+    re.compile(r"顶点[^\s，。；]{0,8}更新最快[；;]?"),
+    re.compile(r"手机版更新最快网址[:：]?\s*m\.?", re.IGNORECASE),
+    re.compile(r"手机用户请访问手机网址[^。；]*"),
+    re.compile(r"本站网址[:：]?[^。；]*"),
+    re.compile(r"最快更新无错阅读.*$"),
+    re.compile(r"中文网】.*$"),
+    re.compile(r"readx;.*$", re.IGNORECASE),
+    re.compile(r"（\d{4,6}\s*\.）"),
+    re.compile(r"[^\s，。；：！？]{2,30}一章节已更新[；;]?"),
+    re.compile(r"一章节已更新[；;]?"),
+    re.compile(r"请大家搜索[！!]?\s*更新最快[的]?[；;，。]?"),
+    re.compile(r"更新最快的?[；;，。]?"),
+]
+SITE_RESIDUE_RE = re.compile(r"\.{1,2}(?:com|net|org)|www\.", re.IGNORECASE)
+STRONG_PROMO_RE = re.compile(
+    r"求月票|求推荐票|求票|推荐票|月票|订阅|打赏|加更|断更|上架|新书.{0,20}(?:发布|连载)|"
+    r"书评区|粉丝节|公众号|QQ阅读|微信阅读|起点中文网|创世中文网|本站网址|手机版|阅读器|"
+    r"txt下载|无弹窗|防盗章节|章节错误|作家荣耀堂|免费阅读|看书神器|百度搜关键词|"
+    r"更新章|更新时间|每天.{0,8}章更新|明天.{0,8}更新|今天.{0,8}更新|更新完|"
+    r"乱叔|乱盟|书友|读者群|收藏本书|加入书架|最新章节|盗版|正版|"
+    r"起点.{0,12}(?:书评|粉丝|票|中文网|APP|阅读)|微信.{0,12}(?:号|红包|书币|加我|luhu|luanshu)|"
+    r"手机下载APP|重要内容|全职法师.{0,12}(?:更新|上架|订阅)|更新变更|中场休息|四年小说|"
+    r"投票|断个更|更新稳定|写小说.{0,12}(?:更新|断更)|移动网|内容更新后|重新刷新页面|获取最新更新|"
+    r"稳定更新|这几天更新|更新都是小章|看书的朋友|第一时间找到本站|——.{0,40}(?:更新|支持|抱歉)"
+)
+NOTE_START_RE = re.compile(r"^(?:（|\(|【|——|—|ps|PS|重要内容|乱语)")
+NOTE_WORD_RE = re.compile(
+    r"更新|章节|写|稿|作者|读者|票|订阅|收藏|月票|推荐|加更|断更|新书|上架|访谈|小说|群|微信|公众号"
+)
 ZERO_WIDTH = dict.fromkeys(map(ord, "\ufeff\u200b\u200c\u200d\u2060\u00ad"), None)
 TITLE_NOTE_WORDS = ("新书", "发布", "更新", "月票", "推荐票")
 TRAILING_PAREN_RE = re.compile(r"[（(]([^（）()]{1,60})[）)]\s*$")
@@ -93,6 +168,16 @@ def clean_inline(text: str, stats: dict) -> str:
     text = MEMBER_RE.sub("", text)
     text = re.sub(r"最新章节已上传；?", "", text)
     text = re.sub(r"（第\d+/\d+页）", "", text)
+    text = text.replace("顶点•更新最快", "").replace("顶点·更新最快", "")
+    text = text.replace("手机用户请浏览阅读，更优质的阅读体验。", "")
+    text = PROMO_PAREN_RE.sub("", text)
+    text = PROMO_BRACKET_RE.sub("", text)
+    for pattern in SITE_INLINE_REMOVE_RES:
+        text = pattern.sub("", text)
+    text = SITE_RESIDUE_RE.sub("", text)
+    for pattern in TRUNCATE_RES:
+        text = pattern.sub("", text)
+    text = re.sub(r"==\s*$", "", text)
     ad_changed = text != before
     text = re.sub(r"[ \t\u3000\u00a0]+", " ", text).strip()
     if ad_changed:
@@ -133,7 +218,15 @@ def clean_body(raw: str, stats: dict) -> list[str]:
         s = clean_inline(s, stats)
         if not s:
             continue
-        if is_ad_line(s):
+        if (
+            is_ad_line(s)
+            or (len(s) < 600 and STRONG_PROMO_RE.search(s))
+            or (len(s) < 1200 and NOTE_START_RE.match(s) and NOTE_WORD_RE.search(s))
+            or (len(s) < 400 and re.match(r"^(?:ps|PS|重要内容|乱语|——)", s) and PROMO_LINE_RES[0].search(s))
+        ):
+            stats["adLines"] += 1
+            continue
+        if len(s) < 400 and any(p.search(s) for p in PROMO_LINE_RES):
             stats["adLines"] += 1
             continue
         paras.append(s)
