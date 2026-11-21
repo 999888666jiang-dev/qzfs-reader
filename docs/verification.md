@@ -262,7 +262,7 @@ Headless Chrome（CDP 390×844）检查：
 | Pages | <https://999888666jiang-dev.github.io/qzfs-reader/> |
 | 默认分支 | `main` |
 | Pages Source | GitHub Actions（`build_type=workflow`） |
-| Actions | 最近两次 deploy 均 success（`44903981560`、`44904126982`） |
+| Actions | 最近 deploy 均 success（`44904879463`、`44905250131`） |
 | 线上首页 | HTTP 200，2,245 B |
 | 线上 `data/meta.json` | HTTP 200，1,758 B |
 | 线上 `data/catalog.json` | HTTP 200，228,229 B |
@@ -270,6 +270,7 @@ Headless Chrome（CDP 390×844）检查：
 | 线上广告抽查 | `c2612` 无 `88106/https/顶点/手机版/网址` 等站点标记 |
 | manifest / sw / 主图 | 均 HTTP 200 |
 | 线上阅读页 | headless Chrome 打开 `#/read/c0001`，渲染出「第 1 章 世界大变」与正文 |
+| 线上首页效果 | DOM 含 `stroke-text__stroke` 与 `halftone-reveal-canvas`；入口 JS `index-BOSfCKjE.js` |
 
 说明：
 
@@ -301,6 +302,7 @@ Headless Chrome（CDP 390×844）检查：
 | 指针显影 | 鼠标移入主图后，光斑内恢复原图，周围保持半调网点 |
 | 手机 390×844 | `scrollWidth=390`；标题 SVG 354×109；主图 canvas 354 宽 |
 | 降级 | `prefers-reduced-motion` 时不加载 HalftoneReveal；WebGL2 不可用时保留静态主图 |
+| 线上 | 首页 DOM 含描边标题与半调 canvas；入口 JS 已切到含动效的构建 |
 
 未完成：
 
