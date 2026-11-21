@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>全职法师 · 阅读站</title>
+    <script>
+      // 首屏主题脚本：在 React 挂载前应用主题，避免刷新闪白（R-04）。
+      // 只读 qfs.settings.v1 的 theme 字段；任何异常都静默回退 paper，不阻塞首屏。
+      ;(function () {
+        var THEMES = ['paper', 'sepia', 'mint', 'night', 'oled', 'arcane']
+        var theme = 'paper'
+        try {
+          var raw = window.localStorage.getItem('qfs.settings.v1')
+          if (raw) {
+            var saved = JSON.parse(raw)
+            if (saved && THEMES.indexOf(saved.theme) !== -1) theme = saved.theme
+          }
+        } catch (err) {
+          theme = 'paper'
+        }
+        document.documentElement.setAttribute('data-theme', theme)
+      })()
+    </script>
+  </head>
+  <body>
+    <noscript>本站需要启用 JavaScript 才能阅读。</noscript>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

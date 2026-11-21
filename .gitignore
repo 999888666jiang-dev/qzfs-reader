@@ -1,0 +1,29 @@
+# 依赖与构建产物
+node_modules/
+dist/
+.vite/
+
+# 原文不入库（见 docs/decisions/decision-02-hosting-and-data.md）
+全法原本/
+
+# 测试与工具产物
+coverage/
+playwright-report/
+test-results/
+*.tmp
+reports/*.tmp
+
+# 环境变量
+.env
+.env.*
+
+# 编辑器与系统文件
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# 本地覆盖与日志
+*.local
+npm-debug.log*

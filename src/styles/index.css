@@ -1,0 +1,32 @@
+:root {
+  color-scheme: light;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: Canvas;
+  color: CanvasText;
+  font-family: system-ui, -apple-system, 'Segoe UI', 'Microsoft YaHei', sans-serif;
+}
+
+.shell {
+  max-width: 42rem;
+  margin: 0 auto;
+  padding: 2rem 1.25rem;
+}
+
+.shell h1 {
+  font-size: 1.5rem;
+  margin: 0 0 1rem;
+}
+
+.shell-note {
+  color: GrayText;
+  font-size: 0.875rem;
+}
