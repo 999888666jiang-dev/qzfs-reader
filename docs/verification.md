@@ -1,6 +1,6 @@
 # 验证记录
 
-> 状态：**M0–M3 与基础 PWA 已执行；GitHub Pages 已上线；M4 动效与自动化测试待执行**（2026-11-21）。
+> 状态：**M0–M3、基础 PWA 与 Pages 已上线；M4 的 StrokeText/HalftoneReveal 已接入**；GlowCursor/OptionWheel 与自动化测试待执行（2026-11-21）。
 > 本文是验收清单与记录模板；实现过程中每完成一项，把「待执行」改为「通过 / 未通过 / 不适用」，并附证据（命令输出、截图、URL、浏览器版本）。
 > 禁止预填「通过」；禁止用「应该可以」代替实测。
 
@@ -248,7 +248,7 @@ Headless Chrome（CDP 390×844）检查：
 
 未完成 / 限制：
 
-- **M4 四件套动效尚未接入**：StrokeText、HalftoneReveal、GlowCursor、OptionWheel 仍是设计稿；当前首页为 CSS 静态视觉。
+- **M4 部分接入**：StrokeText 标题与 HalftoneReveal 主图已接入并在首页启用；GlowCursor、OptionWheel 仍是设计稿。
 - PWA 更新为 `skipWaiting` 直接切换，没有「有新版本」提示；全书离线缓存未做。
 - 没有 Vitest/Playwright 自动化测试；以上为 CDP 手工验收，需在 M5 前补自动化。
 - 设置抽屉的关闭动作只做了点击验证，未单独记录关闭后的焦点归还。
@@ -273,7 +273,37 @@ Headless Chrome（CDP 390×844）检查：
 
 说明：
 
-- 当前线上是可读版本；M4 四件套动效、PWA 更新提示、自动化测试仍未完成。
+- 当前线上是可读版本；GlowCursor/OptionWheel、PWA 更新提示、自动化测试仍未完成。
 - 仓库公开意味着全文可被克隆；页面已 `noindex`，版权说明在 `/about`。
 - 国内访问 GitHub Pages 的稳定性需真机复测；备选托管见 `docs/deployment.md`。
 - 线上数据与本地 `main` 同树；后续 push 会自动重新部署。
+
+## 15. M4 动效（部分，2026-11-21）
+
+已接入：
+
+| 项 | 实现 |
+| --- | --- |
+| StrokeText | `src/components/effects/StrokeText.jsx` + `.css`；`gsap` 依赖；首页标题 `strokeColor=#ffc1c1`、`shadowColor=#ff0e0e`、`fillColor=#f4f2ea` |
+| HalftoneReveal | `src/components/effects/HalftoneReveal.jsx` + `.css`；首页主图 `mode=color`、`cellSize=5`、`revealRadius=170`；支持指针显影 |
+| 降级 | `EffectBoundary` + 静态 `<img>`/静态标题；`prefers-reduced-motion` 时不挂载半调；WebGL2 不可用时只显示静态图 |
+
+构建与验收：
+
+| 检查 | 实际 |
+| --- | --- |
+| `npm run build` | 成功，50 modules transformed |
+| 首页初始 JS | 268.29 kB（gzip 82.45 kB） |
+| StrokeText chunk | 119.66 kB（gzip 46.94 kB），懒加载 |
+| HalftoneReveal chunk | 20.13 kB（gzip 7.35 kB），懒加载 |
+| CSS | 22.99 kB（gzip 5.80 kB） |
+| 桌面 1440 | 标题后段填充为 `#f4f2ea`、描边 `#ffc1c1`、红色阴影 `#ff0e0e`；`canvas.getContext('webgl2')` 为真 |
+| 指针显影 | 鼠标移入主图后，光斑内恢复原图，周围保持半调网点 |
+| 手机 390×844 | `scrollWidth=390`；标题 SVG 354×109；主图 canvas 354 宽 |
+| 降级 | `prefers-reduced-motion` 时不加载 HalftoneReveal；WebGL2 不可用时保留静态主图 |
+
+未完成：
+
+- GlowCursor 光标动效、OptionWheel 章节轮盘尚未接入。
+- 动效没有自动化测试；以上为 CDP/headless Chrome 手工验收。
+- 线上静态主图仍是 869,725 B 原图，尚未转 WebP。

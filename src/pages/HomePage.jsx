@@ -1,13 +1,25 @@
-import { useMemo, useState } from 'react'
+import { lazy, Suspense, useEffect, useMemo, useState } from 'react'
 import { useCatalog } from '../hooks/useCatalog'
 import { loadBookmarks, loadProgress } from '../lib/storage'
 import { chapterId, findChapter, nearestAvailable } from '../lib/chapters'
 import { formatChars, formatCount } from '../lib/format'
+import EffectBoundary from '../components/effects/EffectBoundary'
 import Icon from '../components/Icon'
+
+const StrokeText = lazy(() => import('../components/effects/StrokeText'))
+const HalftoneReveal = lazy(() => import('../components/effects/HalftoneReveal'))
 
 export default function HomePage() {
   const { status, meta, catalog, error, retry } = useCatalog()
   const [imageFailed, setImageFailed] = useState(false)
+  const [webgl2, setWebgl2] = useState(false)
+  const [reduceMotion, setReduceMotion] = useState(false)
+
+  useEffect(() => {
+    const canvas = document.createElement('canvas')
+    setWebgl2(Boolean(canvas.getContext('webgl2')))
+    setReduceMotion(window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false)
+  }, [])
 
   const progress = useMemo(() => loadProgress(), [])
   const bookmarks = useMemo(() => loadBookmarks(), [])
@@ -51,7 +63,32 @@ export default function HomePage() {
         <section className="hero">
           <div className="hero-copy">
             <p className="eyebrow">乱 · 全系法师</p>
-            <h1 className="hero-title">全职法师</h1>
+            <h1 className="hero-title hero-title--effect">
+              <Suspense fallback={<span className="hero-title-static">全职法师</span>}>
+                <EffectBoundary fallback={<span className="hero-title-static">全职法师</span>}>
+                  <StrokeText
+                    text="全职法师"
+                    strokeColor="#ffc1c1"
+                    fillColor="#f4f2ea"
+                    strokeWidth={1.6}
+                    drawDuration={1.8}
+                    fillDelay={0.2}
+                    stagger={0.09}
+                    ease="power2.out"
+                    trigger="mount"
+                    fillMode="wipe"
+                    wipeFrom="left"
+                    fontSize={112}
+                    fontWeight={800}
+                    fontFamily="inherit"
+                    letterSpacing={4}
+                    hoverRedraw
+                    shadow
+                    shadowColor="#ff0e0e"
+                  />
+                </EffectBoundary>
+              </Suspense>
+            </h1>
             <p className="hero-subtitle">QUAN ZHI FA SHI</p>
             <p className="hero-lead">
               一觉醒来，世界大变。魔法为尊，而他全系全能。
@@ -80,16 +117,40 @@ export default function HomePage() {
             </dl>
           </div>
 
-          <div className={`hero-art${imageFailed ? ' is-fallback' : ''}`} aria-hidden={imageFailed ? undefined : true}>
+          <div className={`hero-art${imageFailed ? ' is-fallback' : ''}`} aria-hidden="true">
             {!imageFailed ? (
               <img
+                className="hero-still"
                 src={heroImage}
-                alt="莫凡与穆宁雪"
+                alt=""
                 width="1952"
                 height="1172"
                 fetchPriority="high"
                 onError={() => setImageFailed(true)}
               />
+            ) : null}
+            {!imageFailed && webgl2 && !reduceMotion ? (
+              <Suspense fallback={null}>
+                <EffectBoundary fallback={null}>
+                  <HalftoneReveal
+                    className="hero-halftone"
+                    src={heroImage}
+                    fit="cover"
+                    mode="color"
+                    shape="dot"
+                    cellSize={5}
+                    angle={18}
+                    dotScale={1.05}
+                    paperColor="#0a0d14"
+                    contrast={1.08}
+                    revealRadius={170}
+                    softness={0.55}
+                    linger={1.2}
+                    intro
+                    clickBurst
+                  />
+                </EffectBoundary>
+              </Suspense>
             ) : null}
             <div className="hero-veil" />
             <span className="hero-caption">FULL-TIME MAGICIAN</span>

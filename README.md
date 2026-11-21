@@ -2,7 +2,7 @@
 
 单部小说《全职法师》（作者：乱）的个人静态阅读站。移动优先，纯静态，部署在 GitHub Pages；支持字号/主题/字体/行距/页宽调节、目录搜索、进度与书签、PWA 离线；首页带描边标题、半调主图、光斑光标，阅读页带章节轮盘。
 
-> **当前状态：M2/M3 页面、目录与阅读核心已完成，基础 PWA 可离线；站点已部署到 GitHub Pages（2026-11-21）。M4 四件套动效与自动化测试待做。**
+> **当前状态：M2/M3 页面、目录与阅读核心已完成；基础 PWA 可离线；M4 的 StrokeText 标题与 HalftoneReveal 主图已接入，GlowCursor/OptionWheel 待做；站点已部署到 GitHub Pages（2026-11-21）。**
 > 在线地址：<https://999888666jiang-dev.github.io/qzfs-reader/>　仓库：<https://github.com/999888666jiang-dev/qzfs-reader>
 > 首页、目录、阅读页、书架、搜索、设置、关于均可打开；`public/data/` 已含 3,233 章（3,101 可读、132 缺失）。
 
