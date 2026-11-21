@@ -143,3 +143,29 @@ E2E 最小集：
 - 若某项因环境限制（如无 iPhone）未测，写「未测 + 原因 + 替代验证」，不要标通过。
 - 若发现规则本身有问题，先记「待确认」，不要边改规则边改代码；确认后同步 requirements/spec/tasks/tests。
 - 测试数据不得写入正式 `public/data`；语料测试用临时目录。
+
+## 11. T-01 工程基线（2026-11-21，提交 `1ddc4db`）
+
+| 检查 | 命令 / 动作 | 实际结果 | 状态 |
+| --- | --- | --- | --- |
+| 运行时 | `node -v` / `npm -v` | v24.16.0 / 11.13.0 | 通过 |
+| 依赖版本 | 先 `npm view` 查版本再安装 | react 19.3.1、react-dom 19.3.1、vite 8.3.8、@vitejs/plugin-react 6.3.0；`package-lock.json` 已生成 | 通过 |
+| 开发服务 | `npm run dev` → `GET http://127.0.0.1:5173/` | HTTP 200，1441 B；含 `noindex, nofollow`、内联主题脚本、`#root`、`/src/main.jsx`（200） | 通过 |
+| 生产构建 | `npm run build` | 成功：`dist/index.html` 1.28 kB；JS 220.08 kB（gzip 68.99 kB）；CSS 0.37 kB（gzip 0.25 kB） | 通过 |
+| 子路径 | 检查 `dist/index.html` 的资源引用 | `./assets/index-*.js`、`./assets/index-*.css`，无 `/assets/` 绝对路径（R-16） | 通过 |
+| 浏览器渲染（R-14 骨架） | Edge headless `--dump-dom "http://127.0.0.1:5173/#/read/c0001"` | `data-theme="paper"`、「全职法师 · 阅读站」、「当前路由 /read/c0001」均正确 | 通过 |
+| 仓库卫生 | `git status --porcelain` | 输出为空；`全法原本/`、`node_modules/`、`dist/` 均未入库 | 通过 |
+| 提交 | `git commit` | `1ddc4db chore: scaffold vite react reader shell (T-01)`，41 个跟踪文件 | 通过 |
+
+未在本步验证（留到后续里程碑）：
+
+- `npm test`、`npm run test:e2e`、`npm run data:check`：脚本尚未接入（M1/M3/M5）。
+- PWA manifest / Service Worker / 图标：M5。
+- 六主题切换与首帧无闪白：当前只有内联 `data-theme` 骨架，没有主题 CSS 与设置读写，R-04 留到 M3 验收。
+- 页面、目录、语料：M1（语料）、M2（骨架）。
+
+环境备注（影响后续步骤，先记录）：
+
+- 本机系统级 `core.autocrlf=true`（`C:/Program Files/Git/etc/gitconfig`）。已加 `.gitattributes`（`* text=auto eol=lf`），避免 `public/data/*.json` 检出成 CRLF 与「JSON 必须 LF」契约冲突。
+- 仓库提交身份暂为 `999888666jiang-dev <999888666jiang-dev@users.noreply.github.com>`，**只写在仓库本地配置**，未改全局 `user.email`（gitee noreply）。
+- `gh` 当前账号 `999888666jiang-dev` 的 token 已失效（`gh auth status`），创建远端仓库与 Pages 部署（M5/T-13）前需 `gh auth refresh -h github.com`。
