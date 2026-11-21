@@ -180,6 +180,25 @@ def normalize_title(title: str) -> str:
     return re.sub(r'[\s\u3000，,。.！!？?：:；;、\-—…·「」『』“”"\'（）()]', "", title or "")
 
 
+def load_supplement(supplement_dir: Path, stats: dict) -> dict[int, Candidate]:
+    """Read optional supplement/*.txt; only fill chapters that are missing."""
+    result: dict[int, Candidate] = {}
+    if not supplement_dir or not supplement_dir.exists():
+        return result
+    for path in sorted(supplement_dir.glob("*.txt")):
+        text = decode_text(path.read_bytes())
+        for c in parse_candidates(text, stats):
+            c.title = clean_title(c.title_raw)
+            c.paras = clean_body(c.body_raw, stats)
+            c.chars = sum(len(p) for p in c.paras)
+            if c.chars < 50 or is_ad_line(c.title):
+                continue
+            old = result.get(c.n)
+            if old is None or c.chars > old.chars:
+                result[c.n] = c
+    return result
+
+
 def build(
     input_path: Path,
     out_dir: Path,
@@ -253,6 +272,10 @@ def build(
     for c in kept:
         groups[c.n].append(c)
 
+    supp_stats = {k: 0 for k in stats}
+    supplement = load_supplement(supplement_dir, supp_stats) if supplement_dir else {}
+    supplement_used: list[int] = []
+
     valid_lengths = [c.chars for cs in groups.values() for c in cs if c.chars >= 50]
     global_median = int(statistics.median(valid_lengths)) if valid_lengths else 2000
 
@@ -264,6 +287,22 @@ def build(
 
     for n in range(1, total + 1):
         cands = [c for c in groups.get(n, []) if c.chars >= 50]
+        if not cands and n in supplement:
+            sc = supplement[n]
+            title = sc.title or f"第{n}章"
+            records.append(
+                {
+                    "n": n,
+                    "title": title,
+                    "chars": sc.chars,
+                    "status": 0,
+                    "line": sc.line,
+                    "missing": False,
+                    "paras": sc.paras,
+                }
+            )
+            supplement_used.append(n)
+            continue
         if not cands:
             missing.append(n)
             records.append(
@@ -437,6 +476,7 @@ def build(
             "titleConflictsNormalized": title_conflicts_norm,
         },
         "missing": {"count": len(missing), "ranges": missing_ranges, "numbers": missing},
+        "supplement": {"used": supplement_used, "count": len(supplement_used)},
         "selection": {
             "policy": "clean-complete-later-v1",
             "pickedLater": stats["pickedLater"],

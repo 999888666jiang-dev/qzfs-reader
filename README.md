@@ -58,7 +58,7 @@ python tools/validate_corpus.py --data public/data --source "全法原本/《全
 ## 测试与验收
 
 ```powershell
-python -m unittest discover -s tools/tests -v      # 7 passed
+python -m unittest discover -s tools/tests -v      # 8 passed
 python tools/validate_corpus.py --data public/data # PASS
 npm run data:check                                 # PASS
 npm test                                           # M3 起接入 Vitest

@@ -37,7 +37,7 @@ node tools/check_data.mjs
 | 总字数 | 7,101,261 ±1% | 7,101,261 | 通过 |
 | 选版冲突 | 55 组有清单；人工确认 ≥10 组 | 55 组清单；33 组待人工 | 未完成 |
 | `validate_corpus.py` | 退出码 0 | `PASS: 3233 chapters, 132 missing, 7101261 chars, 3233 files` | 通过 |
-| unittest | 全部通过 | 7 tests OK | 通过 |
+| unittest | 全部通过 | 8 tests OK | 通过 |
 | `check_data.mjs` | 退出码 0 | `PASS: 3233 chapters, 132 missing, 7101261 chars, 3233 files, meta 1758 B` | 通过 |
 
 ## 3. 功能验收（按 R 规则）
@@ -195,7 +195,7 @@ npm run build
 | 标题冲突 | 原始 55 组；清洗后 38 组；归一化后 36 组；needsManual 33 组 | 通过（待人工复核） |
 | `⚹` | 原文 6,696；选版后正文 1,228 | 记录 |
 | `validate_corpus.py` | `PASS: 3233 chapters, 132 missing, 7101261 chars, 3233 files` | 通过 |
-| `unittest` | 7 tests OK | 通过 |
+| `unittest` | 8 tests OK | 通过 |
 | `node tools/check_data.mjs` | `PASS: 3233 chapters, 132 missing, 7101261 chars, 3233 files, meta 1758 B` | 通过 |
 | `npm run build` | 成功；`dist` 3,240 文件、22.2 MB；JS 220.08 kB（gzip 68.99 kB） | 通过 |
 | 数据体积 | `public/data` 3,235 文件、22.0 MB | 通过（≤预算） |

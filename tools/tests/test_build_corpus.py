@@ -104,6 +104,32 @@ class BuildTests(unittest.TestCase):
         self.assertEqual(catalog["chapters"][1], [2, "（原文缺失）", 0, 1])
         self.assertEqual(report["missing"]["ranges"], [[2, 2]])
 
+    def test_supplement_fills_missing(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            src = root / "sample.txt"
+            src.write_text(f"第1章 开始\n{PARA}\n第3章 结束\n{PARA}\n", encoding="utf-8")
+            supp = root / "supplement"
+            supp.mkdir()
+            (supp / "fill.txt").write_text(f"第2章 补章\n{PARA}\n", encoding="utf-8")
+            out = root / "data"
+            report_path = root / "reports" / "quality-report.json"
+            report = build_corpus.build(
+                input_path=src,
+                out_dir=out,
+                report_path=report_path,
+                total=3,
+                supplement_dir=supp,
+                deterministic=True,
+            )
+            meta = json.loads((out / "meta.json").read_text(encoding="utf-8"))
+            self.assertEqual(meta["missing"], [])
+            self.assertEqual(meta["chapters"]["available"], 3)
+            self.assertEqual(report["supplement"]["used"], [2])
+            stub = json.loads((out / "chapters" / "c0002.json").read_text(encoding="utf-8"))
+            self.assertNotIn("missing", stub)
+            self.assertTrue(stub["paras"])
+
 
 if __name__ == "__main__":
     unittest.main()
