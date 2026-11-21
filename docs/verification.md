@@ -265,8 +265,9 @@ Headless Chrome（CDP 390×844）检查：
 | Actions | 最近两次 deploy 均 success（`44903981560`、`44904126982`） |
 | 线上首页 | HTTP 200，2,245 B |
 | 线上 `data/meta.json` | HTTP 200，1,758 B |
-| 线上 `data/catalog.json` | HTTP 200，228,230 B |
+| 线上 `data/catalog.json` | HTTP 200，228,229 B |
 | 线上 `data/chapters/c0001.json` | HTTP 200，8,969 B |
+| 线上广告抽查 | `c2612` 无 `88106/https/顶点/手机版/网址` 等站点标记 |
 | manifest / sw / 主图 | 均 HTTP 200 |
 | 线上阅读页 | headless Chrome 打开 `#/read/c0001`，渲染出「第 1 章 世界大变」与正文 |
 
