@@ -1,17 +1,17 @@
-name: build
+name: Deploy to GitHub Pages
 
-# M0 只做空壳构建（不部署）；Pages 发布在 M5 接入 actions/deploy-pages。
 on:
   push:
     branches: [main]
-  pull_request:
   workflow_dispatch:
 
 permissions:
   contents: read
+  pages: write
+  id-token: write
 
 concurrency:
-  group: build-${{ github.ref }}
+  group: pages
   cancel-in-progress: true
 
 jobs:
@@ -26,8 +26,17 @@ jobs:
       - run: npm ci
       - run: npm run data:check
       - run: npm run build
-      - uses: actions/upload-artifact@v4
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v4
         with:
-          name: dist
           path: dist
-          if-no-files-found: error
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

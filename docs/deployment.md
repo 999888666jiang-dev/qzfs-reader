@@ -56,76 +56,64 @@ gh repo create qzfs-reader --public --source . --remote origin --push
 ### 3.1 `vite.config.js`
 
 ```js
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
-import { VitePWA } from 'vite-plugin-pwa';
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   base: './',
-  plugins: [
-    react(),
-    VitePWA({
-      registerType: 'prompt',
-      includeAssets: ['icons/*.png'],
-      manifest: {
-        name: '全职法师 · 阅读站',
-        short_name: '全职法师',
-        start_url: './',
-        scope: './',
-        display: 'standalone',
-        background_color: '#0a0d14',
-        theme_color: '#0a0d14',
-        icons: [
-          { src: 'icons/icon-192.png', sizes: '192x192', type: 'image/png' },
-          { src: 'icons/icon-512.png', sizes: '512x512', type: 'image/png' },
-          { src: 'icons/icon-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' }
-        ]
-      },
-      workbox: {
-        globPatterns: ['**/*.{js,css,html,svg,png,webp,jpg,woff2}'],
-        runtimeCaching: [
-          {
-            urlPattern: /\/data\/.*\.json$/,
-            handler: 'NetworkFirst',
-            options: { cacheName: 'qfs-data', networkTimeoutSeconds: 3, expiration: { maxEntries: 80 } }
-          }
-        ]
-      }
-    })
-  ],
-  build: { target: 'es2020', sourcemap: false }
-});
+  plugins: [react()],
+  server: { host: '127.0.0.1', port: 5173 },
+  build: { outDir: 'dist', assetsDir: 'assets', sourcemap: false }
+})
 ```
 
 - `base: './'` 是子路径可用的关键；不要在代码里写 `/assets/`。
-- PWA `start_url`/`scope` 用 `./`，保证 `/qzfs-reader/` 下正确。
-- `registerType: 'prompt'` 配合页面「有新版本」提示；不要静默 `autoUpdate`，避免读到旧章。React 端用 `virtual:pwa-register/react` 的 `useRegisterSW`，用户确认后调用 `updateServiceWorker(true)`。
-- data 缓存上限 80 章（约 1 MB）；全书缓存 v1.1 另做。
+- `public/` 下的 `manifest.webmanifest`、`sw.js`、`icons/`、`mofan-hero.jpg` 会原样复制到 `dist/`。
 
-### 3.2 `index.html`
+### 3.2 PWA（手写，不依赖 `vite-plugin-pwa`）
+
+实际实现：
+
+| 文件 | 作用 |
+| --- | --- |
+| `public/manifest.webmanifest` | `start_url`/`scope` 均为 `./`；图标 192/512/maskable |
+| `public/sw.js` | 缓存壳 `qfs-v1`；导航网络优先回退 `index.html`；`/data/` 网络优先并缓存；静态资源缓存优先 |
+| `src/main.jsx` | 仅 `import.meta.env.PROD` 时注册 `new URL('sw.js', document.baseURI)` |
+| `public/icons/*` | 由 `python tools/make_icons.py` 生成（180/192/512/maskable/favicon） |
+
+说明：
+
+- 当前 SW 用 `skipWaiting` 直接切换，**没有**「有新版本」提示；这是 M5 前的基础版。
+- 只缓存访问过的章节；全书缓存不在 v1。
+- 子路径下 `start_url: './'` 与 `scope: './'` 会解析到 `/qzfs-reader/`，无需改代码。
+- 不需要在 `vite.config.js` 引入任何 PWA 插件；不要把两套 manifest/SW 混用。
+
+### 3.3 `index.html`
 
 必须包含：
 
 ```html
 <meta name="robots" content="noindex,nofollow" />
 <meta name="theme-color" content="#0a0d14" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<link rel="manifest" href="./manifest.webmanifest" />
+<link rel="icon" type="image/png" href="./icons/favicon.png" />
+<link rel="apple-touch-icon" href="./icons/apple-touch-icon.png" />
 <script>
-  // 首屏前应用主题与字号，避免闪白；失败静默回退 paper
+  // 首屏前应用主题/字号，避免闪白；失败静默回退 paper
   try {
     const s = JSON.parse(localStorage.getItem('qfs.settings.v1') || '{}');
-    const theme = s.theme || 'paper';
-    document.documentElement.dataset.theme = theme;
+    document.documentElement.dataset.theme = s.theme || 'paper';
     if (s.fontSize) document.documentElement.style.setProperty('--reader-font-size', s.fontSize + 'px');
   } catch (_) {}
 </script>
 ```
 
 > `<body>` 第一行放 `<noscript>本站需要启用 JavaScript 才能阅读。</noscript>`（`<noscript>` 里不要放文本到 `<head>`）。
-> manifest 的 `<link>` 由 `vite-plugin-pwa` 注入，不要手写第二个；若手写，需在插件里设 `manifest: false` 并自行维护，二选一。
-> iOS 主屏另加 `<link rel="apple-touch-icon" href="./icons/icon-180.png">` 与 `apple-mobile-web-app-capable`、`apple-mobile-web-app-status-bar-style`；图标补一张 180×180。
+> manifest 由本项目手写，不要同时再让构建插件注入第二个。
 > `robots.txt` 放在 `public/`：`User-agent: *` + `Disallow: /`。
 
-### 3.3 `package.json` scripts（约定）
+### 3.4 `package.json` scripts（约定）
 
 ```json
 {
@@ -220,7 +208,7 @@ jobs:
 
 1. 本机改代码/数据 → `npm run build` + `npm test` 通过。
 2. 提交并 push 到 `main` → Actions 自动部署。
-3. 已安装 PWA 的用户会收到「有新版本」提示；确认后刷新。
+3. 已安装 PWA 的用户当前会由 `skipWaiting` 直接切到新版本（没有「有新版本」提示；提示列为 M5 完善项），刷新后生效。
 4. 若改了语料，先跑 `validate_corpus.py`，并对比 `quality-report.json` 的缺失/冲突数。
 
 **回滚**

@@ -4,23 +4,39 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="robots" content="noindex, nofollow" />
+    <meta name="theme-color" content="#0a0d14" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="icon" type="image/png" href="./icons/favicon.png" />
+    <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png" />
     <title>全职法师 · 阅读站</title>
     <script>
-      // 首屏主题脚本：在 React 挂载前应用主题，避免刷新闪白（R-04）。
-      // 只读 qfs.settings.v1 的 theme 字段；任何异常都静默回退 paper，不阻塞首屏。
+      // 首屏主题脚本：在 React 挂载前应用主题与字号，避免刷新闪白/跳字号。
+      // 只读 qfs.settings.v1；任何异常都静默回退默认值，不阻塞首屏。
       ;(function () {
         var THEMES = ['paper', 'sepia', 'mint', 'night', 'oled', 'arcane']
+        var FONTS = ['serif', 'sans', 'system']
         var theme = 'paper'
+        var font = 'serif'
         try {
           var raw = window.localStorage.getItem('qfs.settings.v1')
           if (raw) {
             var saved = JSON.parse(raw)
             if (saved && THEMES.indexOf(saved.theme) !== -1) theme = saved.theme
+            if (saved && FONTS.indexOf(saved.fontFamily) !== -1) font = saved.fontFamily
+            if (saved && saved.fontSize) {
+              document.documentElement.style.setProperty('--reader-font-size', saved.fontSize + 'px')
+            }
+            if (saved && typeof saved.justify === 'boolean') {
+              document.documentElement.setAttribute('data-justify', saved.justify ? 'true' : 'false')
+            }
           }
         } catch (err) {
           theme = 'paper'
         }
         document.documentElement.setAttribute('data-theme', theme)
+        document.documentElement.setAttribute('data-font', font)
       })()
     </script>
   </head>
