@@ -10,8 +10,11 @@ dist/
 coverage/
 playwright-report/
 test-results/
+__pycache__/
+*.pyc
 *.tmp
 reports/*.tmp
+public/data.tmp/
 
 # 环境变量
 .env

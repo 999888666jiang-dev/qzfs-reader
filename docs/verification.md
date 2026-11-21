@@ -1,6 +1,6 @@
 # 验证记录
 
-> 状态：**未执行**（架构设计阶段，尚无代码）。
+> 状态：**M0（T-01）与 M1（T-02）已执行**；M2 起的页面、动效、PWA 与线上验收待执行（2026-11-21）。
 > 本文是验收清单与记录模板；实现过程中每完成一项，把「待执行」改为「通过 / 未通过 / 不适用」，并附证据（命令输出、截图、URL、浏览器版本）。
 > 禁止预填「通过」；禁止用「应该可以」代替实测。
 
@@ -28,17 +28,17 @@ node tools/check_data.mjs
 
 | 检查 | 期望 | 实际 | 状态 |
 | --- | --- | --- | --- |
-| 目录总数 | 3,233 | 待填 | 待执行 |
-| 可用正文 | 3,101 | 待填 | 待执行 |
-| 缺失 | 132（2,893–2,992 等） | 待填 | 待执行 |
-| 章节文件 | 3,233（含 132 占位） | 待填 | 待执行 |
-| 广告残留 | 0 | 待填 | 待执行 |
-| BOM/零宽 | 0 | 待填 | 待执行 |
-| 总字数 | 7,116,676 ±1% | 待填 | 待执行 |
-| 选版冲突 | 55 组有清单；人工确认 ≥10 组 | 待填 | 待执行 |
-| `validate_corpus.py` | 退出码 0 | 待填 | 待执行 |
-| unittest | 全部通过 | 待填 | 待执行 |
-| `check_data.mjs` | 退出码 0 | 待填 | 待执行 |
+| 目录总数 | 3,233 | 3,233 | 通过 |
+| 可用正文 | 3,101 | 3,101 | 通过 |
+| 缺失 | 132（2,893–2,992 等） | 132 | 通过 |
+| 章节文件 | 3,233（含 132 占位） | 3,233 | 通过 |
+| 广告残留 | 0 | 0（校验通过） | 通过 |
+| BOM/零宽 | 0 | 0（校验通过） | 通过 |
+| 总字数 | 7,101,261 ±1% | 7,101,261 | 通过 |
+| 选版冲突 | 55 组有清单；人工确认 ≥10 组 | 55 组清单；33 组待人工 | 未完成 |
+| `validate_corpus.py` | 退出码 0 | `PASS: 3233 chapters, 132 missing, 7101261 chars, 3233 files` | 通过 |
+| unittest | 全部通过 | 7 tests OK | 通过 |
+| `check_data.mjs` | 退出码 0 | `PASS: 3233 chapters, 132 missing, 7101261 chars, 3233 files, meta 1758 B` | 通过 |
 
 ## 3. 功能验收（按 R 规则）
 
@@ -159,7 +159,7 @@ E2E 最小集：
 
 未在本步验证（留到后续里程碑）：
 
-- `npm test`、`npm run test:e2e`、`npm run data:check`：脚本尚未接入（M1/M3/M5）。
+- `npm test`、`npm run test:e2e`：脚本尚未接入（M3/M5）；`npm run data:check` 已在 M1 接入。
 - PWA manifest / Service Worker / 图标：M5。
 - 六主题切换与首帧无闪白：当前只有内联 `data-theme` 骨架，没有主题 CSS 与设置读写，R-04 留到 M3 验收。
 - 页面、目录、语料：M1（语料）、M2（骨架）。
@@ -169,3 +169,47 @@ E2E 最小集：
 - 本机系统级 `core.autocrlf=true`（`C:/Program Files/Git/etc/gitconfig`）。已加 `.gitattributes`（`* text=auto eol=lf`），避免 `public/data/*.json` 检出成 CRLF 与「JSON 必须 LF」契约冲突。
 - 仓库提交身份暂为 `999888666jiang-dev <999888666jiang-dev@users.noreply.github.com>`，**只写在仓库本地配置**，未改全局 `user.email`（gitee noreply）。
 - `gh` 当前账号 `999888666jiang-dev` 的 token 已失效（`gh auth status`），创建远端仓库与 Pages 部署（M5/T-13）前需 `gh auth refresh -h github.com`。
+
+## 12. M1 语料管线（T-02，2026-11-21）
+
+命令：
+
+```powershell
+python tools/build_corpus.py --input "全法原本/《全职法师》作者：乱.txt" --out public/data --report reports/quality-report.json --deterministic
+python tools/validate_corpus.py --data public/data --source "全法原本/《全职法师》作者：乱.txt"
+python -m unittest discover -s tools/tests -v
+node tools/check_data.mjs
+npm run build
+```
+
+| 检查 | 实际结果 | 状态 |
+| --- | --- | --- |
+| 目录总数 | 3,233 | 通过 |
+| 可用正文 | 3,101 | 通过 |
+| 缺失 | 132（2,893–2,992 100 章；957–963 7；965–966 2；1,863–1,866 4；其余 19） | 通过 |
+| 章节文件 | 3,233（含 132 占位） | 通过 |
+| 总字数 | 7,101,261（与文档基线 7,116,676 差 0.22%，在 ±1% 内） | 通过 |
+| 清洗广告行 | 198 | 通过 |
+| BOM | 移除 194 处 | 通过 |
+| 选版 | 1,329 章取了更靠后的版本；重复组 1,356 | 通过 |
+| 标题冲突 | 原始 55 组；清洗后 38 组；归一化后 36 组；needsManual 33 组 | 通过（待人工复核） |
+| `⚹` | 原文 6,696；选版后正文 1,228 | 记录 |
+| `validate_corpus.py` | `PASS: 3233 chapters, 132 missing, 7101261 chars, 3233 files` | 通过 |
+| `unittest` | 7 tests OK | 通过 |
+| `node tools/check_data.mjs` | `PASS: 3233 chapters, 132 missing, 7101261 chars, 3233 files, meta 1758 B` | 通过 |
+| `npm run build` | 成功；`dist` 3,240 文件、22.2 MB；JS 220.08 kB（gzip 68.99 kB） | 通过 |
+| 数据体积 | `public/data` 3,235 文件、22.0 MB | 通过（≤预算） |
+| 抽查 | c0001「世界大变」；c1523「欧洲学府」；c3028「完整的冰晶刹弓」；c3227「邪庙女主人」；c2893 占位 | 通过 |
+
+产物：
+
+- `public/data/meta.json`、`catalog.json`、`chapters/c0001.json`…`c3233.json`
+- `reports/quality-report.json`、`reports/manual-review.csv`
+- `tools/build_corpus.py`、`tools/validate_corpus.py`、`tools/check_data.mjs`、`tools/overrides.json`、`tools/tests/test_build_corpus.py`
+
+未完成 / 限制：
+
+- 33 组 `needsManual` 只生成了清单（`reports/manual-review.csv`），尚未逐组人工确认；55 组原始冲突需在 M3 前抽查。
+- `supplement/` 未使用；新增的 `全法原本/全职法师.txt` 经评估不是同版本完整全文（只覆盖 8 个旧缺口号且边界不同），未进入构建，详见 `reports/source-comparison-2026-11-21.md`。
+- 2,893–2,992 仍为占位；没有可用补章文本。
+- 页面仍是 M0 空壳；目录/阅读页消费数据在 M2。

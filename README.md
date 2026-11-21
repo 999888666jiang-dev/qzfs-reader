@@ -2,8 +2,8 @@
 
 单部小说《全职法师》（作者：乱）的个人静态阅读站。移动优先，纯静态，部署在 GitHub Pages；支持字号/主题/字体/行距/页宽调节、目录搜索、进度与书签、PWA 离线；首页带描边标题、半调主图、光斑光标，阅读页带章节轮盘。
 
-> **当前状态：M0 工程基线（T-01）脚手架完成，待验收（2026-11-21）。**
-> 空壳可 `npm run dev` / `npm run build`；语料（M1）、页面与目录（M2）尚未接入。
+> **当前状态：M1 语料管线完成（T-02），静态数据已生成；M2 页面与目录待接入（2026-11-21）。**
+> `public/data/` 已含 3,233 章（3,101 可读、132 缺失），`npm run build` 可用；首页/阅读页仍是 M0 空壳。
 
 ## 素材
 
@@ -43,27 +43,29 @@ npm install        # 首次安装
 npm run dev        # http://127.0.0.1:5173
 npm run build      # 生产构建到 dist/
 npm run preview    # 预览 dist/
+npm run data:check # 校验 public/data
 ```
 
-语料重建（M1 起生效）：
+语料重建（已生成，改原文后才需要）：
 
 ```powershell
-python tools/build_corpus.py --input "全法原本/《全职法师》作者：乱.txt" --out public/data
+python tools/build_corpus.py --input "全法原本/《全职法师》作者：乱.txt" --out public/data --report reports/quality-report.json
+python tools/validate_corpus.py --data public/data --source "全法原本/《全职法师》作者：乱.txt"
 ```
 
-> 当前只有脚手架：`tools/build_corpus.py` 尚未实现，`public/data/` 仍为空。
+> `public/data/` 约 22 MB、3,235 个文件；不要手改，改数据只能改 `tools/` 或 `tools/overrides.json` 后重跑。`全法原本/` 不入库。
 
 ## 测试与验收
 
 ```powershell
-python -m unittest discover -s tools/tests -v      # M1 起
-python tools/validate_corpus.py --data public/data # M1 起
+python -m unittest discover -s tools/tests -v      # 7 passed
+python tools/validate_corpus.py --data public/data # PASS
+npm run data:check                                 # PASS
 npm test                                           # M3 起接入 Vitest
 npm run test:e2e                                   # M5 起接入 Playwright
-node tools/check_data.mjs                          # M1 起
 ```
 
-> 脚手架阶段只有 `npm run dev` / `npm run build` 可用；其余命令随里程碑接入，未接入前不预填结果。
+> 当前 M1 结果：3,233 章 / 3,101 可读 / 132 缺失 / 7,101,261 字；详见 [docs/verification.md](docs/verification.md)。
 > 验收结果统一写进 [docs/verification.md](docs/verification.md)。
 
 ## 部署
